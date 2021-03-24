@@ -1,2 +1,2 @@
 "# projetInfo" 
- ![alt text](projet_complement_info.pdf) 
+ ![Lisez-moi](projet_complement_info.pdf) 

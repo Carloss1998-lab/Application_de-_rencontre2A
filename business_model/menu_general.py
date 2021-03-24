@@ -1,0 +1,80 @@
+import curses
+
+
+class MenuDisplay:
+
+    def __init__(self, menu):
+        # set menu parameter as class property
+        self.menu = menu
+        # run curses application
+        self.total = 0
+        self.longueur = 0
+        curses.wrapper(self.mainloop)
+
+    def reponse(self):
+        return self.total, self.longueur
+
+    def mainloop(self, stdscr):
+        # turn off cursor blinking
+        curses.curs_set(0)
+
+        # color scheme for selected row
+        curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_WHITE)
+
+        # set screen object as class property
+        self.stdscr = stdscr
+
+        # get screen height and width
+        self.screen_height, self.screen_width = self.stdscr.getmaxyx()
+
+        # specify the current selected row
+        current_row = 0
+
+        # print the menu
+        self.print_menu(current_row)
+
+        while 1:
+            key = self.stdscr.getch()
+
+            if key == curses.KEY_UP and current_row > 0:
+                current_row -= 1
+            elif key == curses.KEY_DOWN and current_row < len(self.menu) - 1:
+                current_row += 1
+            elif key == curses.KEY_ENTER and current_row != len(self.menu) - 1 or key in [10, 13] :
+                self.print_center("Vous avez sélectionné '{}'".format(self.menu[current_row]))
+                self.total = current_row
+                self.longueur = len(self.menu) - 1
+
+                # if user selected last row (Exit), confirm before exit the program
+                break
+            self.print_menu(current_row)
+        return self.menu[current_row]
+
+
+    def print_menu(self, selected_row_idx):
+        self.stdscr.clear()
+        for idx, row in enumerate(self.menu):
+            x = self.screen_width // 2 - len(row) // 2
+            y = self.screen_height // 2 - len(self.menu) // 2 + idx
+            if idx == selected_row_idx:
+                self.color_print(y, x, row, 1)
+            else:
+                self.stdscr.addstr(y, x, row)
+        self.stdscr.refresh()
+
+    def color_print(self, y, x, text, pair_num):
+        self.stdscr.attron(curses.color_pair(pair_num))
+        self.stdscr.addstr(y, x, text)
+        self.stdscr.attroff(curses.color_pair(pair_num))
+
+
+
+
+    def print_center(self, text):
+        self.stdscr.clear()
+        x = self.screen_width // 2 - len(text) // 2
+        y = self.screen_height // 2
+        self.stdscr.addstr(y, x, text)
+        self.stdscr.refresh()
+
+
